@@ -1,3 +1,7 @@
+## Fleet 3.2.1 (2020.10.30)
+
+* Test
+
 ## Fleet 3.2.0 (Aug 08, 2020)
 
 * Add `stdout` logging plugin.
