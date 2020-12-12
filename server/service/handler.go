@@ -98,6 +98,7 @@ type KolideEndpoints struct {
 	SSOSettings                           endpoint.Endpoint
 	StatusResultStore                     endpoint.Endpoint
 	StatusLiveQuery                       endpoint.Endpoint
+	Print				      endpoint.Endpoint
 }
 
 // MakeKolideServerEndpoints creates the Kolide API endpoints.
@@ -112,6 +113,7 @@ func MakeKolideServerEndpoints(svc kolide.Service, jwtKey, urlPrefix string) Kol
 		InitiateSSO:    makeInitiateSSOEndpoint(svc),
 		CallbackSSO:    makeCallbackSSOEndpoint(svc, urlPrefix),
 		SSOSettings:    makeSSOSettingsEndpoint(svc),
+		Print: 		printInputEndpoint(svc),
 
 		// Authenticated user endpoints
 		// Each of these endpoints should have exactly one
@@ -285,6 +287,7 @@ type kolideHandlers struct {
 	SettingsSSO                           http.Handler
 	StatusResultStore                     http.Handler
 	StatusLiveQuery                       http.Handler
+	Print				      http.Handler
 }
 
 func makeKolideKitHandlers(e KolideEndpoints, opts []kithttp.ServerOption) *kolideHandlers {
@@ -374,6 +377,7 @@ func makeKolideKitHandlers(e KolideEndpoints, opts []kithttp.ServerOption) *koli
 		SettingsSSO:                           newServer(e.SSOSettings, decodeNoParamsRequest),
 		StatusResultStore:                     newServer(e.StatusResultStore, decodeNoParamsRequest),
 		StatusLiveQuery:                       newServer(e.StatusLiveQuery, decodeNoParamsRequest),
+		Print:				       newServer(e.Print, decodePrintRequest),
 	}
 }
 
@@ -509,6 +513,7 @@ func attachKolideAPIRoutes(r *mux.Router, h *kolideHandlers) {
 	r.Handle("/api/v1/osquery/distributed/read", h.GetDistributedQueries).Methods("POST").Name("get_distributed_queries")
 	r.Handle("/api/v1/osquery/distributed/write", h.SubmitDistributedQueryResults).Methods("POST").Name("submit_distributed_query_results")
 	r.Handle("/api/v1/osquery/log", h.SubmitLogs).Methods("POST").Name("submit_logs")
+	r.Handle("/api/v1/kolide/print", h.Print).Methods("POST").Name("print")
 }
 
 // WithSetup is an http middleware that checks is setup procedures have been completed.
